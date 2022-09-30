@@ -1,0 +1,12 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+.div_text{
+	float: left;
+	height: 50px;
+	line-height: 50px;
+	font-size: 18px;
+	padding: 0px 10px;
+}
+
