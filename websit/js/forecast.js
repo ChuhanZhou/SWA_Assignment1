@@ -2,36 +2,49 @@ var host = 'http://localhost:8080/'
 var api_type = "forecast"
 var selectCity;
 var city;
-const city_arr = [];
 $(document).ready(function () {
-    selectCity = document.getElementById('selectCity');
     city = selectCity.value;
-    updateData();
-});
-
-$(document).ready(function () {
+    var city_url = "/" + city
+    const url = host + api_type + city_url
+    console.log("PRE " + url);
     $("#selectCity").change(function () {
         city = selectCity.value;
-        console.log("[select city] " + city);
         updateData();
     });
 });
 
-function updateData() {
-    getWeatherInfo();
-    //getDataByCity();
-}
-
-function getDataByCity() {
-    console.log(">>FRE<< create city " + city);
-    createCity(city, [1, 3], [12, 23], "prec", [34, 45], "east", [56, 67], "2022")
-}
-
-//objs
-//get city
-async function getWeatherInfo() {
+async function updateData() {
     var city_url = "/" + city
-    url = host + api_type + city_url
+    const url = host + api_type + city_url
+    await getWeatherInfo(url);
+
+}
+//objs
+//create table
+async function initTable(city_arr) {
+    var forecast_table = $('#forecast');
+    if (forecast_table !== undefined) {
+        forecast_table.empty();
+    }
+    forecast_table.append("<tr><td>City</td><td>Temperature</td><td>Precipitation</td><td>Precipitation Type</td><td>Wind Speed</td><td>Wind Directions</td><td>Cloud Coverage</td><td>Time</td></tr>");
+    for (let i = 0; i < city_arr.length; i++) {
+        var single_hour = city_arr[i];
+        forecast_table.append(
+            "<tr>" +
+            "<td>" + single_hour.name + "</td>" +
+            "<td>" + single_hour.temp[0] + " °C - " + single_hour.temp[1] + " °C" + "</td>" +
+            "<td>" + single_hour.perc[0] + " mm - " + single_hour.perc[1] + " mm" + "</td>" +
+            "<td>" + single_hour.perc_type + "</td>" +
+            "<td>" + single_hour.ws[0] + " m/s - " + single_hour.ws[1] + " m/s" + "</td>" +
+            "<td>" + single_hour.ws_dir + "</td>" +
+            "<td>" + single_hour.cc[0] + " % - " + single_hour.cc[1] + " %" + "</td>" +
+            "<td>" + single_hour.tm[0] + "\n" + single_hour.tm[1] + "</td>" +
+            +"</tr>")
+    }
+}
+//get city
+async function getWeatherInfo(url) {
+    //console.log(">>FRE<< "+url)
     var temp_arr = [];
     var prec_arr = [];
     var prec_type_arr = [];
@@ -40,12 +53,16 @@ async function getWeatherInfo() {
     var cc_arr = [];
     var time_arr = [];
     var real_time = [];
+    var city_arr = [];
     await fetchRaw(url).then(weathers => {
         weathers.forEach(weather => {
             let raw_t = weather.time
+            let new_date = new Date(raw_t);
+            let realdate = new_date.toLocaleDateString();
+            let realtime = new_date.toLocaleTimeString();
             let date = raw_t.split("T")[0]
             let time = raw_t.split("T")[1].split(".")[0]
-            let timepac = [date,time]
+            let timepac = [realdate, realtime]
             if (time_arr.indexOf(time) === -1) {
                 time_arr.push(time);
                 real_time.push(timepac);
@@ -77,6 +94,8 @@ async function getWeatherInfo() {
         var assemble = createCity(city, temp_arr[i], prec_arr[i], prec_type_arr[i], ws_arr[i], ws_dir_arr[i], cc_arr[i], real_time[i]);
         city_arr.push(assemble);
     }
+    initTable(city_arr);
+
 }
 //fetch raw data
 async function fetchRaw(url) {
@@ -100,7 +119,7 @@ function createCity(cityname, temperature, precipitation, precipitation_type, wi
     return city;
 }
 function showcity(city) {
-    console.log(">>FRE<< " + city.name + " | " + city.tm); //+ " | " + city.temp + " | " + city.perc + " | " + city.perc_type + " | " + city.ws + " | " + city.ws_dir + " | " + city.cc + " | " 
+    //console.log(">>FRE<< " + city.name + " | " + city.tm); //+ " | " + city.temp + " | " + city.perc + " | " + city.perc_type + " | " + city.ws + " | " + city.ws_dir + " | " + city.cc + " | " 
 }
 var cityFuncs = {
     getName() {

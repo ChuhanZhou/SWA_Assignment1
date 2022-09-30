@@ -1,10 +1,12 @@
 <!doctype html>
 <html>
+
 <head>
-<meta charset="utf-8">
-<title>view weather</title>
+	<meta charset="utf-8">
+	<title>view weather</title>
 	<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 	<script type="text/javascript" src="./js/homepage.js"></script>
+	<script type="text/javascript" src="./js/forecast.js"></script>
 	<link type="text/css" href="./css/style.css" rel="stylesheet">
 </head>
 
@@ -18,7 +20,14 @@
 				<option value="Copenhagen">Copenhagen</option>
 			</select>
 		</div>
-		
+	</div>
+	<div id="forecastContainer"
+		style="border-radius: 5px; background-color: #d6d6d669; height: auto; padding-top: 50px;">
+		<table id="forecast"
+			style="width: 100%; padding-left: 5px; padding-right: 5px; padding-bottom: 5px; padding-top: 5px;">
+
+		</table>
 	</div>
 </body>
+
 </html>
