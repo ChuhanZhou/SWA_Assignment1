@@ -49,10 +49,10 @@ function getDataByCity()
 //[object]
 const WeatherData = function(time){
     const weather_data = {}
-    weather_data.temperature = ;
-    weather_data.precipitation = ;
-	weather_data.wind_speed = ;
-	weather_data.cloud_coverage = ;
+    weather_data.temperature = 0;
+    weather_data.precipitation = 0;
+	weather_data.wind_speed = 0;
+	weather_data.cloud_coverage = 0;
 	weather_data.time = time;
 	
 
