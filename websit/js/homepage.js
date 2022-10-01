@@ -4,29 +4,108 @@ var host = 'http://localhost:8080/'
 var xhr = new XMLHttpRequest();
 
 var selectCity;
+var selectData;
+var lastDateText;
+var minTempText;
+var maxTempText;
+var totalPrecipitationText;
+var averageWindSpeedText;
 
+var showWeather;
 var city_name;
 var citys_weather_data = [];
 
 $(document).ready(function(){ 
-	
 	selectCity = document.getElementById('selectCity');
-	
+	selectData = document.getElementById('selectData');
+	lastDateText = document.getElementById('lastDateText');
+	minTempText = document.getElementById('minTempText');
+	maxTempText = document.getElementById('maxTempText');
+	totalPrecipitationText = document.getElementById('totalPrecipitationText');
+	averageWindSpeedText = document.getElementById('averageWindSpeedText');
+
 	city_name = selectCity.value;
-	
-	getDataByCity(city_name);
-	
+
+	HP_updateShowType(selectData.value)
+	HP_getDataByCity(city_name);
 });
 
 $(document).ready(function(){
 	$("#selectCity").change(function(){
-		city_name = selectCity.value;
-		console.log("[select city] "+city_name);
-		getDataByCity(city_name);
+		city_name = selectCity.value
+		console.log("[select city] "+city_name)
+		HP_getDataByCity(city_name)
+		
 	});
 });
 
-function updateData(weather_datas,city_name)
+$(document).ready(function(){
+	$("#selectData").change(function(){
+		data_name = selectData.value;
+		HP_updateShowType(data_name)
+		console.log("[select data] "+data_name)
+		if (showWeather){
+			HP_getDataByCity(city_name)
+			HP_initTable(city_name)
+		}
+	});
+});
+
+function HP_updateLastDayInfo(){
+	last_date = citys_weather_data[city_name].at(-1).getDate()
+	lastDateText.textContent = last_date;
+	minTemperature = HP_getMinTemperature(city_name,last_date)
+	maxTemperature = HP_getMaxTemperature(city_name,last_date)
+	totalPrecipitation = HP_getTotalPrecipitation(city_name,last_date)
+	averageWindSpeed = HP_getAverageWindSpeed(city_name,last_date)
+	minTempText.textContent = minTemperature.getValue().toFixed(1)+" °"+minTemperature.getUnit()
+	maxTempText.textContent = maxTemperature.getValue().toFixed(1)+" °"+minTemperature.getUnit()
+	totalPrecipitationText.textContent = totalPrecipitation.getValue().toFixed(1)+" "+totalPrecipitation.getUnit()
+	averageWindSpeedText.textContent = averageWindSpeed.getValue().toFixed(1)+" "+averageWindSpeed.getUnit()
+}
+
+function HP_initTable(city_name) {
+	console.log("[update table] type: weather")
+    var forecast_table = $('#forecast');
+	city_data = citys_weather_data[city_name]
+    if (forecast_table !== undefined) {
+        forecast_table.empty();
+    }
+    forecast_table.append("<tr><td>City</td><td>Temperature</td><td>Precipitation</td><td>Precipitation Type</td><td>Wind Speed</td><td>Wind Directions</td><td>Cloud Coverage</td><td>Time</td></tr>");
+	for (let i = city_data.length-1; i >=0; i--) {
+		daily_datas = city_data[i].getWeatherDatas()
+		
+		for(let d_i = daily_datas.length-1; d_i >=0; d_i--){
+			var single_hour = daily_datas[d_i];
+        	forecast_table.append(
+            	"<tr>" +
+            	"<td>" + city_name + "</td>" +
+            	"<td>" + single_hour.getTemperature().getValue() + " °" + single_hour.getTemperature().getUnit() + "</td>" +
+            	"<td>" + single_hour.getPrecipitation().getValue() + " " + single_hour.getPrecipitation().getUnit() + "</td>" +
+            	"<td>" + single_hour.getPrecipitation().getPrecipitationType() + "</td>" +
+            	"<td>" + single_hour.getWindSpeed().getValue() + " " + single_hour.getWindSpeed().getUnit() + "</td>" +
+            	"<td>" + single_hour.getWindSpeed().getDirection() + "</td>" +
+            	"<td>" + single_hour.getCloudCoverage().getValue() + " " + single_hour.getCloudCoverage().getUnit() + "</td>" +
+            	"<td>" + single_hour.getTime().toLocaleString() + "</td>" +
+            	+"</tr>")
+		}
+    }
+}
+
+function HP_updateShowType(type_name){
+	switch (type_name){
+		case "weather":
+			showWeather = true
+			break
+		case "forecast":
+			showWeather = false
+			break
+		default:
+			break
+	}
+}
+
+function HP_updateData(weather_datas,city_name)
 {
 	var n = 0
 	var time = -1
@@ -38,7 +117,6 @@ function updateData(weather_datas,city_name)
 		time = citys_weather_data[city_name].at(-1).getWeatherDatas().at(-1).getTime().toISOString();
 		date = citys_weather_data[city_name].at(-1).getDate()
 		daily_data = citys_weather_data[city_name].at(-1)
-		console.log(time,date)
 		var start = false;
 		for (var i = 0; i < weather_datas.length; i++){
 			data = weather_datas[i]
@@ -106,30 +184,28 @@ function updateData(weather_datas,city_name)
 		}
 	}
 	console.log("[update city weather data] new num: "+n)
-	console.log(citys_weather_data)
 }
 
-function getDataByCity(city_name)
+function HP_getDataByCity(city_name)
 {
 	url = host + 'data/' + city_name;
 	console.log("[get data] url: "+url);
 	xhr.open("GET", url, true);
 	xhr.onreadystatechange = function() {
     	if (xhr.readyState == XMLHttpRequest.DONE) {
-        	//alert();
 			console.log("[GET city weather data successed] "+city_name);
 			weather_datas = JSON.parse(xhr.responseText);
-			updateData(weather_datas,city_name);
-			console.log(getMinTemperature(city_name,"2022/9/28"))
-			console.log(getMaxTemperature(city_name,"2022/9/28"))
-			console.log(getTotalPrecipitation(city_name,"2022/9/28"))
-			console.log(getAverageWindSpeed(city_name,"2022/9/28"))
+			HP_updateData(weather_datas,city_name);
+			HP_updateLastDayInfo()
+			if (showWeather){
+				HP_initTable(city_name)
+			}
     	}
 	}
 	xhr.send();
 }
 
-function getMinTemperature(city_name,date){
+function HP_getMinTemperature(city_name,date){
 	city_weather_data = citys_weather_data[city_name]
 	min_temp = undefined
 	for (var i = city_weather_data.length-1; i >=0; i--){
@@ -147,7 +223,7 @@ function getMinTemperature(city_name,date){
 	return min_temp
 }
 
-function getMaxTemperature(city_name,date){
+function HP_getMaxTemperature(city_name,date){
 	city_weather_data = citys_weather_data[city_name]
 	max_temp = undefined
 	for (var i = city_weather_data.length-1; i >=0; i--){
@@ -165,7 +241,7 @@ function getMaxTemperature(city_name,date){
 	return max_temp
 }
 
-function getTotalPrecipitation(city_name,date){
+function HP_getTotalPrecipitation(city_name,date){
 	city_weather_data = citys_weather_data[city_name]
 	total_precipitation = undefined
 	for (var i = city_weather_data.length-1; i >=0; i--){
@@ -187,7 +263,7 @@ function getTotalPrecipitation(city_name,date){
 	return total_precipitation
 }
 
-function getAverageWindSpeed(city_name,date){
+function HP_getAverageWindSpeed(city_name,date){
 	city_weather_data = citys_weather_data[city_name]
 	average_wind_speed = undefined
 	for (var i = city_weather_data.length-1; i >=0; i--){

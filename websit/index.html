@@ -12,15 +12,36 @@
 
 <body>
 	<div style="width:100%; height: 50px;float: left; background: #FF0004">
-		<div class="div_text">City:</div>
-		<div style="height: 40px; margin: 5px 0px">
+		<div class="div_text" style="padding: 0px 10px;">City:</div>
+		<div style="height: 40px; margin: 5px 0px; float: left;">
 			<select id="selectCity" style="height: 100%">
 				<option value="Horsens">Horsens</option>
 				<option value="Aarhus">Aarhus</option>
 				<option value="Copenhagen">Copenhagen</option>
 			</select>
 		</div>
+		<div style="height: 40px; margin: 5px 0px; float: left;">
+			<select id="selectData" style="height: 100%">
+				<option value="weather">weather</option>
+				<option value="forecast">forecast</option>
+			</select>
+		</div>
 	</div>
+
+	<div style="width:100%; height: 50px;float: left; ">
+		<div class="div_text">Date:</div>
+		<div class="div_text" id="lastDateText">null</div>
+		<div class="div_text">|Temperature:</div>
+		<div class="div_text">min:</div>
+		<div class="div_text" id="minTempText">null</div>
+		<div class="div_text">max:</div>
+		<div class="div_text" id="maxTempText">null</div>
+		<div class="div_text">|Total precipitation:</div>
+		<div class="div_text" id="totalPrecipitationText">null</div>
+		<div class="div_text">|Average wind speed:</div>
+		<div class="div_text" id="averageWindSpeedText">null</div>
+	</div>
+
 	<div id="forecastContainer"
 		style="border-radius: 5px; background-color: #d6d6d669; height: auto; padding-top: 50px;">
 		<table id="forecast"
